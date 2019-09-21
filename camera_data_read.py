@@ -1,6 +1,6 @@
 import cv2
 
-from camerFlow2rtmp import push_flow
+from cameraFlow2rtmp import push_flow
 
 rtmp_url = ''
 
@@ -19,13 +19,20 @@ resolution_size = (
 flow_pipe = push_flow('x'.join(str(item) for item in resolution_size), fps, rtmp_url)
 
 try:
-    #success, frame = cap.read()
+    success, frame = cap.read()
+    
+    while success:
+        #frame = cap.retrieve()
+        flow_pipe.stdin.write(frame.tostring())
+        success, frame = cap.read()
+
+    """
     success = cap.grab()
     while success:
         frame = cap.retrieve()
-        flow_pipe.stdin.write(frame.tostring())
-        #success, frame = cap.read()
+        flow_pipe.stdin.write(frame[1].tostring())
         success = cap.grab()
+    """
 except Exception as e:
     print('[ERROR]: {}'.format(e))
 finally:
