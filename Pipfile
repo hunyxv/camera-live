@@ -4,13 +4,12 @@ url = "https://pypi.tuna.tsinghua.edu.cn/simple/"
 verify_ssl = true
 
 [dev-packages]
+requests = "*"
 
 [packages]
-shlex = "*"
-subprocess = "*"
 opencv-python = "*"
 opencv-contrib-python = "*"
 bypy = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.6"
