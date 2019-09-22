@@ -1,6 +1,6 @@
 [[source]]
 name = "pypi"
-url = "https://pypi.tuna.tsinghua.edu.cn/simple/"
+url = "http://mirrors.aliyun.com/pypi/simple/"
 verify_ssl = true
 
 [dev-packages]
@@ -12,4 +12,4 @@ opencv-contrib-python = "*"
 bypy = "*"
 
 [requires]
-python_version = "3.6"
+python_version = "3.7"
