@@ -1,6 +1,6 @@
 [[source]]
 name = "pypi"
-url = "https://mirrors.aliyun.com/pypi/simple/"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple/"
 verify_ssl = true
 
 [packages]
@@ -10,3 +10,6 @@ bypy = "*"
 
 [requires]
 python_version = "3.7"
+
+[dev-packages]
+pylint = "*"
