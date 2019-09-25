@@ -10,9 +10,9 @@ class FFPushFlow(object):
         self.resolution_size = resolution_size
         self.fps = fps
 
-        self.ffp = self.push_flow()
+        self.ffp = self.create_live_flow()
 
-    def push_flow(self):
+    def create_live_flow(self):
         """
         Args：
             resolution: image or video resolution rate
@@ -35,6 +35,10 @@ class FFPushFlow(object):
             shlex.split(command), stdin=subprocess.PIPE
         )
         return ffp
+    
+    def push_flow(self, task):
+        frame = task.result()
+        self.ffp.stdin.write(frame.tostring())
 
     def pid(self):
         return self.ffp.pid
@@ -53,6 +57,13 @@ class FFPushFlow(object):
             return False
 
     def restart(self):
+        self.ffp.stdin.close()
         self.kill()
 
-        self.ffp = self.push_flow()
+        self.ffp = self.create_live_flow()
+
+
+
+    def __del__(self):
+        self.ffp.stdin.close()
+        self.kill()

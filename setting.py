@@ -10,5 +10,8 @@ RTMP = {
 VIDEO = {
     "FPS": 20,
     "WIDTH": 704,
-    "HEIGHT": 480
+    "HEIGHT": 480,
+    "DURATION": 600  # s
 }
+
+CAMERA_ID = 0

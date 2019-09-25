@@ -1,41 +1,40 @@
 import cv2
+import asyncio
+from setting import CAMERA_ID, VIDEO
+from cameraFlow2rtmp import FFPushFlow
+from files_processing import frame_processing, VideoProcessing
 
-from cameraFlow2rtmp import push_flow
-
-rtmp_url = ''
-
-cap = cv2.VideoCapture(0)
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, 704)   # 480p
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-cap.set(cv2.CAP_PROP_FPS, 20)
+cap = cv2.VideoCapture(CAMERA_ID)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, VIDEO.get("WIDTH"))   # 480p
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, VIDEO.get("HEIGHT"))
+cap.set(cv2.CAP_PROP_FPS, VIDEO.get("FPS")) 
 
 fps = cap.get(cv2.CAP_PROP_FPS)
 resolution_size = (
     int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), 
     int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 )
-# fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 
-flow_pipe = push_flow('x'.join(str(item) for item in resolution_size), fps, rtmp_url)
+ffmpeg_push_flow = FFPushFlow(resolution_size, fps)
+video_processing = VideoProcessing(
+    int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), 
+    int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)), 
+    fps, Video.get("DURATION")
+)
 
-try:
-    success, frame = cap.read() # frame 是一个三维数组 (480, 704, 3) (width, height, RGB)
-
-    while success:
-        #frame = cap.retrieve()
-        flow_pipe.stdin.write(frame.tostring())
+async def run():
+    try:
         success, frame = cap.read()
+        while success:
+            task1 = asyncio.create_task(frame_processing(frame))
+            task2 = asyncio.create_task(cap.read())
 
-    """
-    success = cap.grab()
-    while success:
-        frame = cap.retrieve()
-        flow_pipe.stdin.write(frame[1].tostring())
-        success = cap.grab()
-    """
-except Exception as e:
-    print('[ERROR]: {}'.format(e))
-finally:
-    flow_pipe.stdin.close()
-    flow_pipe.kill()
-    cap.release()
+            task1.add_done_callback(ffmpeg_push_flow.push_flow)
+            task1.add_done_callback(video_processing.record)
+
+            await task1
+            success, frame = await task2
+    except Exception as e:
+        print(e)
+    finally:
+        cap.release()
