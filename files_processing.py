@@ -8,6 +8,7 @@ frontalface_cascade = cv2.CascadeClassifier(
 profileface_cascade = cv2.CascadeClassifier(
     './cascades/haarcascade_profileface.xml'
 )
+
 async def frame_processing(frame):
     gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
 
@@ -30,6 +31,8 @@ async def frame_processing(frame):
     # 添加文字
     text = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     cv2.putText(frame, text, (40, 40), cv2.FONT_HERSHEY_PLAIN, 1.6, (0, 0, 255), 2)
+
+    return frame
     
 
 

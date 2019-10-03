@@ -38,3 +38,6 @@ async def run():
         print(e)
     finally:
         cap.release()
+
+if __name__ == "__main__":
+    asyncio.run(run())
