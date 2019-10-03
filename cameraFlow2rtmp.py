@@ -2,12 +2,15 @@ import subprocess
 import shlex
 
 from urllib import parse
+from log import Logger
 from setting import RTMP, VIDEO
+
+logger = Logger()
 
 class FFPushFlow(object):
     def __init__(self, resolution_size, fps):
         self.rtmp_url = RTMP.get('RTMP_ADDR') + '?' + parse.urlencode(RTMP.get('payload'))
-        self.resolution_size = resolution_size
+        self.resolution_size = str(resolution_size[0]) + 'x' + str(resolution_size[1])
         self.fps = fps
 
         self.ffp = self.create_live_flow()
@@ -26,6 +29,7 @@ class FFPushFlow(object):
             fps=self.fps, 
             rtmp_url=self.rtmp_url
         )
+        logger.info(command)
         """
         -f rawvideo： 将输入格式设置为原始视频容器
         -pix_fmt: 像素格式，opencv 默认的像素格式 是 bgr，后面将 bgr 转为 yuyv 格式

@@ -1,3 +1,4 @@
+import os
 import cv2
 import datetime
 
@@ -16,22 +17,22 @@ async def frame_processing(frame):
     faces = frontalface_cascade.detectMultiScale(gray, 1.3, 4)
     for (x, y, w, h) in faces:
         frame = cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
-    
+
     # 左侧脸
     left_faces = profileface_cascade.detectMultiScale(gray, 1.3, 4)
     for (x, y, w, h) in left_faces:
         frame = cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
-
+    
     # 右侧脸
     right_flip = cv2.flip(gray, 1)
     right_faces = profileface_cascade.detectMultiScale(right_flip, 1.3, 4)
     for (x, y, w, h) in right_faces:
         frame = cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 0, 255), 2)
-
+    
     # 添加文字
     text = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     cv2.putText(frame, text, (40, 40), cv2.FONT_HERSHEY_PLAIN, 1.6, (0, 0, 255), 2)
-
+    
     return frame
     
 
@@ -49,7 +50,10 @@ class VideoProcessing(object):
         self.create_video_fn(self.get1new_vpath())
     
     def create_video_fn(self, video_path):
-        self.videofn = cv2.VideoCapture()
+        if not os.path.exists(os.path.dirname(video_path)):
+            os.makedirs(os.path.dirname(video_path))
+
+        self.videofn = cv2.VideoWriter()
         self.videofn.open(video_path, 
             self.fourcc, 
             self.fps, 
@@ -64,8 +68,8 @@ class VideoProcessing(object):
             video_path: string
         """
         start_time = datetime.datetime.now()
-        end_time = start_time + datetime.timedelta(seconds=self.video_duration)
-        video_name = start_time.strftime('%Y%m%d_%H%M%S') + '-' + end_time.strftime('%Y%m%d_%H%M%S') * '.mp4'
+        end_time = start_time + datetime.timedelta(seconds=self.video_duration / self.fps)
+        video_name = start_time.strftime('%Y%m%d_%H%M%S') + '-' + end_time.strftime('%Y%m%d_%H%M%S') + '.mp4'
         video_path = './{}/{}/{}'.format(
             '%d%02d' % (start_time.year, start_time.month),
             start_time.day,
@@ -82,7 +86,7 @@ class VideoProcessing(object):
         """
         frame = task.result()
         
-        if self.frame_count > self.video_duration
+        if self.frame_count > self.video_duration:
             self.frame_count = 0
             self.videofn.release()
             new_video_path = self.get1new_vpath()

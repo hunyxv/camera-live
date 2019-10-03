@@ -1,9 +1,9 @@
 # RTMP server
 RTMP = {
-    "RTMP_ADDR": '',
+    "RTMP_ADDR": 'rtmp://192.168.1.2:1935/hls',
     "payload": {
-        "USERNAME": '',
-        "PASSWORD": ''
+        "username": '',
+        "passwd": 'hunyxv666'
     }
 }
 
