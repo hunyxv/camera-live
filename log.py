@@ -3,7 +3,7 @@ import logging.handlers
 
 class Logger(object):
     __object = None 
-    def __new__(cls):       # 单例模式
+    def __new__(cls, name='root'):       # 单例模式
         if not cls.__object:
             cls.__object = super().__new__(cls)
         return cls.__object

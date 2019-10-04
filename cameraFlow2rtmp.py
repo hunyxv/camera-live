@@ -1,19 +1,31 @@
 import subprocess
 import shlex
-
+import threading
 from urllib import parse
 from log import Logger
 from setting import RTMP, VIDEO
 
-logger = Logger()
+logger = Logger().get_logger()
 
-class FFPushFlow(object):
-    def __init__(self, resolution_size, fps):
-        self.rtmp_url = RTMP.get('RTMP_ADDR') + '?' + parse.urlencode(RTMP.get('payload'))
-        self.resolution_size = str(resolution_size[0]) + 'x' + str(resolution_size[1])
-        self.fps = fps
+class FFPushFlow(threading.Thread):
+    __object = None
+    __has_init = False
+    
+    def __new__(cls, frame=None, resolution_size=(0, 0), fps=0):
+        if not cls.__object:
+            cls.__object = super().__new__(cls)
+        return cls.__object
 
-        self.ffp = self.create_live_flow()
+    def __init__(self, frame=None, resolution_size=(0, 0), fps=0):
+        if not FFPushFlow.__has_init:
+            self.rtmp_url = RTMP.get('RTMP_ADDR') + '?' + parse.urlencode(RTMP.get('payload'))
+            self.resolution_size = str(resolution_size[0]) + 'x' + str(resolution_size[1])
+            self.fps = fps
+
+            self.ffp = self.create_live_flow()
+            FFPushFlow.__has_init = True
+        super().__init__()
+        self.frame = frame
 
     def create_live_flow(self):
         """
@@ -40,9 +52,8 @@ class FFPushFlow(object):
         )
         return ffp
     
-    def push_flow(self, task):
-        frame = task.result()
-        self.ffp.stdin.write(frame.tostring())
+    def push_flow(self):
+        self.ffp.stdin.write(self.frame.tostring())
 
     def pid(self):
         return self.ffp.pid
@@ -66,7 +77,8 @@ class FFPushFlow(object):
 
         self.ffp = self.create_live_flow()
 
-
+    def run(self):
+        self.push_flow()
 
     def __del__(self):
         self.ffp.stdin.close()

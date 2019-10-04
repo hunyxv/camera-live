@@ -14,7 +14,7 @@ opencv-contrib-python = "*"
 bypy = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.6"
 
 [dev-packages]
 pylint = "*"
